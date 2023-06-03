@@ -44,6 +44,7 @@
 #include <aruco_ros/aruco_ros_utils.h>
 #include <aruco_msgs/MarkerArray.h>
 #include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 #include <std_msgs/UInt32MultiArray.h>
 
 class ArucoMarkerPublisher
@@ -56,9 +57,11 @@ private:
 
   // node params
   bool useRectifiedImages_;
+  bool setYPerpendicular_;
   std::string marker_frame_;
   std::string camera_frame_;
   std::string reference_frame_;
+  std::string dictionary_;
   double marker_size_;
 
   // ROS pub-sub
@@ -93,6 +96,9 @@ public:
       nh_.param<bool>("image_is_rectified", useRectifiedImages_, true);
       nh_.param<std::string>("reference_frame", reference_frame_, "");
       nh_.param<std::string>("camera_frame", camera_frame_, "");
+      nh_.param<bool>("set_y_perpendicular", setYPerpendicular_, false);
+      nh_.param<std::string>("marker_frame", marker_frame_, "");
+      nh_.param<std::string>("dictionary", dictionary_, "ALL_DICTS");
       camParam_ = aruco_ros::rosCameraInfo2ArucoCamParams(*msg, useRectifiedImages_);
       ROS_ASSERT(not (camera_frame_.empty() and not reference_frame_.empty()));
       if (reference_frame_.empty())
@@ -111,6 +117,7 @@ public:
     marker_msg_ = aruco_msgs::MarkerArray::Ptr(new aruco_msgs::MarkerArray());
     marker_msg_->header.frame_id = reference_frame_;
     marker_msg_->header.seq = 0;
+    mDetector_.setDictionary(dictionary_);
   }
 
   bool getTransform(const std::string& refFrame, const std::string& childFrame, tf::StampedTransform& transform)
@@ -152,6 +159,7 @@ public:
 
     ros::Time curr_stamp = msg->header.stamp;
     cv_bridge::CvImagePtr cv_ptr;
+    static tf::TransformBroadcaster br;
     try
     {
       cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::RGB8);
@@ -161,7 +169,7 @@ public:
       markers_.clear();
 
       // ok, let's detect
-      mDetector_.detect(inImage_, markers_, camParam_, marker_size_, false);
+      mDetector_.detect(inImage_, markers_, camParam_, marker_size_, setYPerpendicular_);
 
       // marker array publish
       if (publishMarkers)
@@ -190,13 +198,16 @@ public:
           {
             getTransform(reference_frame_, camera_frame_, cameraToReference);
           }
-
+          
           // now find the transform for each detected marker
           for (std::size_t i = 0; i < markers_.size(); ++i)
           {
             aruco_msgs::Marker & marker_i = marker_msg_->markers.at(i);
+            std::string marker_frame = marker_frame_ + std::to_string(marker_i.id); //Posible bug
             tf::Transform transform = aruco_ros::arucoMarker2Tf(markers_[i]);
             transform = static_cast<tf::Transform>(cameraToReference) * transform;
+            tf::StampedTransform stampedTransform(transform, curr_stamp, reference_frame_, marker_frame);
+            br.sendTransform(stampedTransform);
             tf::poseTFToMsg(transform, marker_i.pose.pose);
             marker_i.header.frame_id = reference_frame_;
           }
