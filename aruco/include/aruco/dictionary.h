@@ -53,13 +53,14 @@ public:
     ARTOOLKITPLUS = 6,
     ARTOOLKITPLUSBCH = 7,  //
     TAG16h5 = 8,
-    TAG25h7 = 9,
-    TAG25h9 = 10,
-    TAG36h11 = 11,
-    TAG36h10 = 12,   // april tags
-    CHILITAGS = 13,  // chili tags dictionary . NOT RECOMMENDED. It has distance 0.
+    DICT_4X4_50 = 9,
+    TAG25h7 = 10,
+    TAG25h9 = 11,
+    TAG36h11 = 12,
+    TAG36h10 = 13,   // april tags
+    CHILITAGS = 14,  // chili tags dictionary . NOT RECOMMENDED. It has distance 0.
                      // Markers 806 and 682 should not be used!!!
-    CUSTOM = 14,  // for used defined dictionaries  (using loadFromfile).
+    CUSTOM = 15,  // for used defined dictionaries  (using loadFromfile).
   };
   // indicates if a code is in the dictionary
   bool is(uint64_t code) const

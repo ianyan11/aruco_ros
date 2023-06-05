@@ -2069,12 +2069,32 @@ Dictionary Dictionary::loadPredefined(DICT_TYPES type)
                                  0x380bUL, 0xf0abUL, 0xd84UL,  0x4736UL, 0x8c72UL,
                                  0xaf10UL, 0x93cUL,  0x93b4UL, 0xa503UL, 0x468fUL,
                                  0xe137UL, 0x5795UL, 0xdf42UL, 0x1c1dUL, 0xe9dcUL,
-                                 0x73adUL, 0xad5fUL, 0xd530UL, 0x7caUL,  0xaf2eUL };
+                                 0x73adUL, 0xad5fUL, 0xd530UL, 0x7caUL,  0xaf2eUL 
+                            };
       fromVector(codes, d._code_id);
       d._nbits = 16;
       d._tau = 5;
       d._type = TAG16h5;
       d._name = "TAG16h5";
+    }
+    break;
+    case DICT_4X4_50:
+    {
+      vector<uint64_t> codes = { 0xb532UL, 0x0f9aUL, 0x332dUL, 0x9946UL, 0x549eUL, 
+                                 0x79cdUL, 0x9e2eUL, 0xc4f2UL, 0xfedaUL, 0xcf56UL, 
+                                 0xf991UL, 0x11a7UL, 0x0eb7UL, 0x2a0fUL, 0x24b1UL, 
+                                 0x263eUL, 0x4665UL, 0x6600UL, 0x6c5eUL, 0x76afUL, 
+                                 0x868bUL, 0xb02bUL, 0xccd5UL, 0xdd82UL, 0xfe47UL, 
+                                 0x9471UL, 0xace4UL, 0xa554UL, 0x2123UL, 0x346fUL, 
+                                 0x4415UL, 0x57b2UL, 0x9ecfUL, 0xf0cbUL, 0x8aeUL, 
+                                 0x0929UL, 0x1875UL, 0x04ffUL, 0x0df6UL, 0x1c5aUL, 
+                                 0x1718UL, 0x2a28UL, 0x328cUL, 0x38b2UL, 0x24e8UL, 
+                                 0x2eebUL, 0x2d3fUL, 0x4b64UL, 0x502eUL, 0x5013UL};
+      fromVector(codes, d._code_id);
+      d._nbits = 16;
+      d._tau = 5;  // This needs to be adjusted based on your dictionary. 
+      d._type = DICT_4X4_50;
+      d._name = "DICT_4X4_50";
     }
     break;
     case TAG25h7:
@@ -3473,6 +3493,8 @@ std::string Dictionary::getTypeString(DICT_TYPES t)
       return "ARTOOLKITPLUSBCH";
     case TAG16h5:
       return "TAG16h5";
+    case DICT_4X4_50:
+      return "DICT_4X4_50";
     case TAG25h7:
       return "TAG25h7";
     case TAG25h9:
@@ -3509,6 +3531,8 @@ Dictionary::DICT_TYPES Dictionary::getTypeFromString(std::string str)
     return ARTAG;
   if (str == "TAG16h5")
     return TAG16h5;
+  if (str == "DICT_4X4_50")
+    return DICT_4X4_50;
   if (str == "TAG25h7")
     return TAG25h7;
   if (str == "TAG25h9")
@@ -3536,9 +3560,9 @@ bool Dictionary::isPredefinedDictinaryString(string str)
 vector<std::string> Dictionary::getDicTypes()
 {
   return { "ARUCO",         "ARUCO_MIP_16h3",   "ARUCO_MIP_25h7", "ARUCO_MIP_36h12",
-           "ARTOOLKITPLUS", "ARTOOLKITPLUSBCH", "TAG16h5",        "TAG25h7",
-           "TAG25h9",       "TAG36h11",         "TAG36h10",       "CHILITAGS",
-           "ALL_DICTS" };
+           "ARTOOLKITPLUS", "ARTOOLKITPLUSBCH", "TAG16h5",        "DICT_4X4_50", 
+           "TAG25h7",       "TAG25h9",          "TAG36h11",       "TAG36h10",       
+           "CHILITAGS",     "ALL_DICTS" };
 }
 
 MarkerMap Dictionary::createMarkerMap(cv::Size gridSize, int MarkerSize, int MarkerDistance,
