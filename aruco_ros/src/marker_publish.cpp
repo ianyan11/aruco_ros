@@ -118,7 +118,6 @@ public:
     marker_msg_->header.frame_id = reference_frame_;
     marker_msg_->header.seq = 0;
     mDetector_.setDictionary(dictionary_);
-    //mDetector_.loadParamsFromFile("/home/ian/Documents/Programacion/MiniRetos/src/aruco_ros/aruco_ros/aruco_dict.yml");
   }
 
   bool getTransform(const std::string& refFrame, const std::string& childFrame, tf::StampedTransform& transform)
