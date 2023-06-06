@@ -48,9 +48,6 @@ include_directories(
                        src/aruco_ros_utils.cpp)
  add_dependencies(double ${PROJECT_NAME}_gencfg)
  target_link_libraries(double ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
- 
- add_executable(testing src/testing.cpp)
- target_link_libraries(testing ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
  add_executable(marker_publisher src/marker_publish.cpp
                                  src/aruco_ros_utils.cpp)

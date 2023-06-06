@@ -59,10 +59,12 @@ private:
   bool useRectifiedImages_;
   bool setYPerpendicular_;
   std::string marker_frame_;
+  std::string advertise_frame_;
   std::string camera_frame_;
   std::string reference_frame_;
   std::string dictionary_;
   double marker_size_;
+  std::vector<int> marker_id_list_;
 
   // ROS pub-sub
   ros::NodeHandle nh_;
@@ -96,9 +98,11 @@ public:
       nh_.param<bool>("image_is_rectified", useRectifiedImages_, true);
       nh_.param<std::string>("reference_frame", reference_frame_, "");
       nh_.param<std::string>("camera_frame", camera_frame_, "");
+      nh_.param<std::string>("advertise_name", advertise_frame_, "");
       nh_.param<bool>("set_y_perpendicular", setYPerpendicular_, false);
       nh_.param<std::string>("marker_frame", marker_frame_, "");
       nh_.param<std::string>("dictionary", dictionary_, "ALL_DICTS");
+      nh_.getParam("marker_id_list", marker_id_list_);
       camParam_ = aruco_ros::rosCameraInfo2ArucoCamParams(*msg, useRectifiedImages_);
       ROS_ASSERT(not (camera_frame_.empty() and not reference_frame_.empty()));
       if (reference_frame_.empty())
@@ -111,8 +115,8 @@ public:
 
     image_pub_ = it_.advertise("result", 1);
     debug_pub_ = it_.advertise("debug", 1);
-    marker_pub_ = nh_.advertise<aruco_msgs::MarkerArray>("markers", 100);
-    marker_list_pub_ = nh_.advertise<std_msgs::UInt32MultiArray>("markers_list", 10);
+    marker_pub_ = nh_.advertise<aruco_msgs::MarkerArray>(advertise_frame_+"/markers", 100);
+    marker_list_pub_ = nh_.advertise<std_msgs::UInt32MultiArray>(advertise_frame_+"/markers_list", 10);
 
     marker_msg_ = aruco_msgs::MarkerArray::Ptr(new aruco_msgs::MarkerArray());
     marker_msg_->header.frame_id = reference_frame_;
@@ -184,8 +188,12 @@ public:
         {
           aruco_msgs::Marker & marker_i = marker_msg_->markers.at(i);
           marker_i.header.stamp = curr_stamp;
-          marker_i.id = markers_.at(i).id;
-          marker_i.confidence = 1.0;
+          int marker_id = markers_.at(i).id;
+          if (std::find(marker_id_list_.begin(), marker_id_list_.end(), marker_id) != marker_id_list_.end())
+          {
+            marker_i.id = markers_.at(i).id;
+            marker_i.confidence = 1.0;          
+          }
         }
 
         // if there is camera info let's do 3D stuff
